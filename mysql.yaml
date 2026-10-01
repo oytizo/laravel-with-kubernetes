@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+  labels:
+    app: mysql
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate # Ensures only 1 pod writes to the storage at a time during updates
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.0 # Recommended stable MySQL engine version for Laravel
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3306
+              name: mysql
+          env:
+            # Matches DB_DATABASE=laravel from your .env file
+            - name: MYSQL_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-config
+                  key: MYSQL_DATABASE
+            # Matches DB_PASSWORD=rootpassword from your app.yaml environment
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-config
+                  key: MYSQL_ROOT_PASSWORD
+          volumeMounts:
+            - name: mysql-persistent-storage
+              mountPath: /var/lib/mysql # Where MySQL stores actual data tables
+      volumes:
+        # A local temporary space for data. 
+        # Note: If the pod restarts, your data stays. If the deployment is deleted, data resets.
+        - name: mysql-persistent-storage
+          emptyDir: {}
+
+---
+# ========================================================
+# SERVICE: Internal Network Endpoint for Laravel to Connect
+# ========================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service # Crucial: This exact name matches DB_HOST=mysql-service in app.yaml
+spec:
+  selector:
+    app: mysql
+  ports:
+    - protocol: TCP
+      port: 3306       # Port visible inside the cluster network
+      targetPort: 3306 # Actual internal port running inside the MySQL container

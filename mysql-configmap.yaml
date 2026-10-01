@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-config
+  labels:
+    app: mysql
+data:
+  # Matches DB_DATABASE from your Laravel .env file
+  MYSQL_DATABASE: "laravel"
+  # Matches DB_PASSWORD from your Laravel .env file
+  MYSQL_ROOT_PASSWORD: "rootpassword"
+  # Matches DB_USERNAME from your Laravel .env file
+  MYSQL_USER: "laravel"
+  # Matches DB_PASSWORD from your Laravel .env file
+  MYSQL_PASSWORD: "laravelpassword"
+  # Matches DB_PORT from your Laravel .env file
+  DB_PORT: "3306"

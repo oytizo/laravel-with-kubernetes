@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: laravel-app
+  labels:
+    app: laravel-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: laravel-app
+  template:
+    metadata:
+      labels:
+        app: laravel-app
+    spec:
+      volumes:
+        # Shared volume so Nginx can read the compiled Laravel public assets
+        - name: shared-files
+          emptyDir: {}
+        # Mount the ConfigMap you created from your .docker/nginx.conf file
+        - name: nginx-config-volume
+          configMap:
+            name: nginx-config
+      containers:
+        # --- Container 1: PHP-FPM Backend ---
+        - name: php
+          image: oytizo/laravel-app:v1.0.0
+          imagePullPolicy: IfNotPresent 
+          volumeMounts:
+            - name: shared-files
+              mountPath: /var/www/html
+          env:
+            - name: DB_CONNECTION
+              value: mysql
+            - name: DB_HOST
+              value: mysql-service
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-config
+                  key: DB_PORT
+            - name: DB_DATABASE  
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-config
+                  key: MYSQL_DATABASE
+            - name: DB_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-config
+                  key: MYSQL_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-config
+                  key: MYSQL_PASSWORD
+            - name: APP_ENV
+              value: production
+            - name: APP_DEBUG
+              value: "false"
+            - name: APP_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: laravel-config
+                  key: APP_KEY
+          # --- Container 2: Nginx Frontend ---
+        - name: nginx
+          image: laravel-docker-nginx:latest
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: shared-files
+              mountPath: /var/www/html
+            - name: nginx-config-volume
+              mountPath: /etc/nginx/conf.d      
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: laravel-service
+spec:
+  type: NodePort 
+  selector:
+    app: laravel-app
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30080
