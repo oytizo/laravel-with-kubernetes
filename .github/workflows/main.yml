@@ -52,6 +52,8 @@ jobs:
           source: "app.yaml,mysql.yaml,laravel-configmap.yaml,mysql-configmap.yaml,.docker/"
           target: "~/laravel-k8s"
 
+     # Update the script section under "Execute Remote Deployment via SSH" in your deploy.yml:
+
       - name: Execute Remote Deployment via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -61,18 +63,18 @@ jobs:
           script: |
             cd ~/laravel-k8s
 
-            # 1. Create a free-tier persistent storage data-dir on the EC2 host for MySQL
+            # Ensure host persistent storage directory exists for MySQL
             sudo mkdir -p /mnt/mysql-data
             sudo chmod 777 /mnt/mysql-data
 
-            # 2. Dynamically swap the image target string inside app.yaml with the unique Git SHA key tag
+            # Dynamically inject the unique GitHub SHA image tag into app.yaml
             sed -i "s|image: .*laravel-app:.*|image: ${{ secrets.DOCKER_USERNAME }}/laravel-app:${{ github.sha }}|g" app.yaml
 
-            # 3. Apply ConfigMaps, Deployments, and Services in order
-            kubectl apply -f mysql-configmap.yaml
-            kubectl apply -f laravel-configmap.yaml
-            kubectl apply -f mysql.yaml
-            kubectl apply -f app.yaml
+            # 3. Apply ConfigMaps, Deployments, and Services using the direct MicroK8s binary path
+            sudo microk8s kubectl apply -f mysql-configmap.yaml
+            sudo microk8s kubectl apply -f laravel-configmap.yaml
+            sudo microk8s kubectl apply -f mysql.yaml
+            sudo microk8s kubectl apply -f app.yaml
 
-            # 4. Command Kubernetes to instantly trigger a zero-downtime rolling update restart
-            kubectl rollout restart deployment/laravel-deployment
+            # 4. Command MicroK8s to instantly trigger a zero-downtime rolling update restart
+            sudo microk8s kubectl rollout restart deployment/laravel-deployment
