@@ -54,6 +54,8 @@ jobs:
 
      # Update the script section under "Execute Remote Deployment via SSH" in your deploy.yml:
 
+     # Update the script section under "Execute Remote Deployment via SSH" in your deploy.yml:
+
       - name: Execute Remote Deployment via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -70,11 +72,11 @@ jobs:
             # Dynamically inject the unique GitHub SHA image tag into app.yaml
             sed -i "s|image: .*laravel-app:.*|image: ${{ secrets.DOCKER_USERNAME }}/laravel-app:${{ github.sha }}|g" app.yaml
 
-            # 3. Apply ConfigMaps, Deployments, and Services using the direct MicroK8s binary path
-            sudo microk8s kubectl apply -f mysql-configmap.yaml
-            sudo microk8s kubectl apply -f laravel-configmap.yaml
-            sudo microk8s kubectl apply -f mysql.yaml
-            sudo microk8s kubectl apply -f app.yaml
+            # 3. Apply ConfigMaps, Deployments, and Services using the ABSOLUTE binary snap path
+            sudo /snap/bin/microk8s kubectl apply -f mysql-configmap.yaml
+            sudo /snap/bin/microk8s kubectl apply -f laravel-configmap.yaml
+            sudo /snap/bin/microk8s kubectl apply -f mysql.yaml
+            sudo /snap/bin/microk8s kubectl apply -f app.yaml
 
             # 4. Command MicroK8s to instantly trigger a zero-downtime rolling update restart
-            sudo microk8s kubectl rollout restart deployment/laravel-deployment
+            sudo /snap/bin/microk8s kubectl rollout restart deployment/laravel-deployment
