@@ -79,4 +79,4 @@ jobs:
             bash -l -c "microk8s kubectl apply -f app.yaml"
 
             # Trigger the zero-downtime cluster rollout restart
-            bash -l -c "microk8s kubectl rollout restart deployment/laravel-deployment"
+            bash -l -c "microk8s kubectl rollout restart deployment/laravel-app"
