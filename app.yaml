@@ -70,14 +70,15 @@ spec:
           ports:
             - containerPort: 80
           volumeMounts:
-            - name: nginx-volume     # Match this with your shared-files emptyDir if needed
+            - name: shared-files     # Match this with your shared-files emptyDir if needed
               mountPath: /var/www/html
             - name: nginx-config-volume
               mountPath: /etc/nginx/conf.d/default.conf
-              subPath: nginx.conf   
-    volumes:
+              subPath: nginx.conf
+
+      volumes:
         # Define the volume for your project source code files
-        - name: nginx-volume
+        - name: shared-files
           emptyDir: {} # Or your persistentVolumeClaim / hostPath setup
         # Define the volume pulling the config block from your ConfigMap
         - name: nginx-config-volume
