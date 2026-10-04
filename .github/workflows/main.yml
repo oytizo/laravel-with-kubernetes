@@ -75,6 +75,7 @@ jobs:
             # Execute with a login shell wrapper to load MicroK8s seamlessly
             bash -l -c "microk8s kubectl apply -f mysql-configmap.yaml"
             bash -l -c "microk8s kubectl apply -f laravel-configmap.yaml"
+            bash -l -c "microk8s kubectl apply -f configmap-nginx.yaml"
             bash -l -c "microk8s kubectl apply -f mysql.yaml"
             bash -l -c "microk8s kubectl apply -f app.yaml"
 
