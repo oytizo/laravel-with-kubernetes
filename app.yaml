@@ -70,10 +70,18 @@ spec:
           ports:
             - containerPort: 80
           volumeMounts:
-            - name: shared-files
+            - name: nginx-volume
               mountPath: /var/www/html
             - name: nginx-config-volume
-              mountPath: /etc/nginx/conf.d      
+              mountPath: /etc/nginx/conf.d     
+    volumes:
+        # Define the volume for your project source code files
+        - name: nginx-volume
+          emptyDir: {} # Or your persistentVolumeClaim / hostPath setup
+        # Define the volume pulling the config block from your ConfigMap
+        - name: nginx-config-volume
+          configMap:
+            name: nginx-config
 ---
 apiVersion: v1
 kind: Service
