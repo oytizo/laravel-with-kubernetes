@@ -73,11 +73,11 @@ jobs:
             sed -i "s|image: .*laravel-app:.*|image: ${{ secrets.DOCKER_USERNAME }}/laravel-app:${{ github.sha }}|g" app.yaml
 
             # Execute with a login shell wrapper to load MicroK8s seamlessly
-            bash -l -c "microk8s kubectl apply -f mysql-configmap.yaml --validate=false"
-            bash -l -c "microk8s kubectl apply -f laravel-configmap.yaml --validate=false"
-            bash -l -c "microk8s kubectl apply -f configmap-nginx.yaml --validate=false"
-            bash -l -c "microk8s kubectl apply -f mysql.yaml"
-            bash -l -c "microk8s kubectl apply -f app.yaml"
+            # bash -l -c "microk8s kubectl apply -f mysql-configmap.yaml --validate=false"
+            # bash -l -c "microk8s kubectl apply -f laravel-configmap.yaml --validate=false"
+            # bash -l -c "microk8s kubectl apply -f configmap-nginx.yaml --validate=false"
+            # bash -l -c "microk8s kubectl apply -f mysql.yaml"
+            # bash -l -c "microk8s kubectl apply -f app.yaml"
 
             # Trigger the zero-downtime cluster rollout restart
-            bash -l -c "microk8s kubectl rollout restart deployment/laravel-app"
+            # bash -l -c "microk8s kubectl rollout restart deployment/laravel-app"
